@@ -1,6 +1,7 @@
 from brainbase_labs import BrainbaseLabs
 import os
 
+# SDK @ https://pypi.org/project/brainbase-labs/
 # docs (SDK) @ https://docs.usebrainbase.com/sdk/
 # docs (API) @ https://docs.usebrainbase.com/api-reference/overview
 # based guide @ https://docs.usebrainbase.com/based-crash-course
