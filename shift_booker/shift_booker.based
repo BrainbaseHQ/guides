@@ -1,0 +1,11 @@
+
+current_hour = 19
+meta_prompt = "You're an assistant that helps the user book shifts."
+res = say("Hello, I'm a shift booking assistant.")
+loop:
+    phone_response = talk(f"{meta_prompt} Ask the time and day of the shift", True)
+until "User has given a time and day of the shift":
+    time_of_day = "day" if 6 <= current_hour < 18 else "night"
+    say(f"Ok, I've booked a shift for you. Have a great {time_of_day}!")
+until "User asks to speak to a human":
+    say("Okay, I'm transferring you to a live agent. Please hold on...")
