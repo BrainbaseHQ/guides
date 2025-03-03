@@ -30,16 +30,13 @@ This guide will walk you through setting up and using the provided files to crea
 
     Install the necessary packages with pip:
 
-        pip install aiohttp python-dotenv
+        pip install -r requirements.txt
 
 4.  **Configure Environment Variables**
 
     In the `hello_world` directory, create a file named `.env` using the provided `.env.example` as a template. At a minimum, include your Brainbase API key. For example:
 
         BRAINBASE_API_KEY=your_brainbase_api_key
-        DEPLOYMENT_TYPE=development   # or "production" as needed
-        # If using development mode, you may also need:
-        # BRAINBASE_BASE_URL=your_development_base_url
 
 ## Creating a Worker and Flow
 
@@ -49,6 +46,8 @@ The `setup.py` script will create a new worker and a flow in Brainbase. It perfo
 - Creates a BrainbaseLabs client.
 - Creates a new worker (named "Hello World Worker").
 - Creates a new flow version for that worker.
+
+You can also modify the original source code in the `.based` file to customize the worker's behavior.
 
 To run the script, execute the following command from the `hello_world` directory:
 
