@@ -1,6 +1,7 @@
 import asyncio
 import json
 import aiohttp
+import sys  # needed for flushing streaming output
 
 class BrainbaseRunner:
     def __init__(self, worker_id, flow_id, api_key, host="wss://brainbase-engine-python.onrender.com"):
@@ -42,6 +43,9 @@ class BrainbaseRunner:
         print("Initialization message sent.")
     
     async def _listen(self, ws):
+        # Create a buffer to accumulate streaming chunks.
+        stream_buffer = ""
+        streaming_active = False
         try:
             async for msg in ws:
                 if msg.type == aiohttp.WSMsgType.TEXT:
@@ -49,16 +53,49 @@ class BrainbaseRunner:
                         message_obj = json.loads(msg.data)
                         action = message_obj.get("action")
                         if action in ["message", "response"]:
-                            print("Received message:", message_obj["data"].get("message"))
+                            # Regular non-streaming message
+                            if streaming_active:
+                                print()  # finish any previous streaming output
+                                streaming_active = False
+                                stream_buffer = ""
+                            print("Assistant:", message_obj["data"].get("message"))
                         elif action == "stream":
-                            print("Received stream chunk:", message_obj["data"].get("message"))
+                            # Handle streaming content
+                            stream_chunk = message_obj["data"].get("message", "")
+                            if not streaming_active:
+                                # First chunk of a streaming sequence
+                                print("Assistant: ", end="")
+                                streaming_active = True
+                                stream_buffer = ""
+                            
+                            # Print only the new chunk
+                            print(stream_chunk, end="")
+                            stream_buffer += stream_chunk
+                            sys.stdout.flush()
                         elif action == "function_call":
+                            if streaming_active:
+                                print()  # ensure any pending streaming output ends
+                                streaming_active = False
+                                stream_buffer = ""
                             print("Function call requested:", message_obj["data"].get("function"))
                         elif action == "error":
+                            if streaming_active:
+                                print()
+                                streaming_active = False
+                                stream_buffer = ""
                             print("Error from server:", message_obj["data"].get("message"))
                         elif action == "done":
+                            # End of a streamed message: add a newline.
+                            if streaming_active:
+                                print()
+                                streaming_active = False
+                                stream_buffer = ""
                             print("Operation completed successfully:", message_obj["data"])
                         else:
+                            if streaming_active:
+                                print()
+                                streaming_active = False
+                                stream_buffer = ""
                             print("Unknown action received:", action)
                     except Exception as e:
                         print("Error parsing message:", e)
