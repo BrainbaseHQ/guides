@@ -6,10 +6,15 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # create brainbase client
-bb = BrainbaseLabs(
-    base_url=os.environ["BRAINBASE_BASE_URL"],
-    api_key=os.environ["BRAINBASE_API_KEY"]
-)
+if os.environ["DEPLOYMENT_TYPE"] == "development":
+    bb = BrainbaseLabs(
+        base_url=os.environ["BRAINBASE_BASE_URL"],
+        api_key=os.environ["BRAINBASE_API_KEY"]
+    )
+else:
+    bb = BrainbaseLabs(
+        api_key=os.environ["BRAINBASE_API_KEY"]
+    )
 
 # 1. list workers
 workers = bb.workers.list()

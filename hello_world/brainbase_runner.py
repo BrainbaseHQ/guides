@@ -1,8 +1,8 @@
 import asyncio
 import json
 import aiohttp
-import sys  # needed for flushing streaming output
-
+import sys 
+import os
 class BrainbaseRunner:
     def __init__(self, worker_id, flow_id, api_key, host="wss://brainbase-engine-python.onrender.com"):
         self.worker_id = worker_id
@@ -33,7 +33,7 @@ class BrainbaseRunner:
     async def _initialize(self, ws):
         init_data = {
             "streaming": True,
-            "deploymentType": "development"
+            "deploymentType": os.environ.get("DEPLOYMENT_TYPE", "production")
         }
         init_message = {
             "action": "initialize",
@@ -58,13 +58,13 @@ class BrainbaseRunner:
                                 print()  # finish any previous streaming output
                                 streaming_active = False
                                 stream_buffer = ""
-                            print("Assistant:", message_obj["data"].get("message"))
+                            print("Agent:", message_obj["data"].get("message"))
                         elif action == "stream":
                             # Handle streaming content
                             stream_chunk = message_obj["data"].get("message", "")
                             if not streaming_active:
                                 # First chunk of a streaming sequence
-                                print("Assistant: ", end="")
+                                print("Agent: ", end="")
                                 streaming_active = True
                                 stream_buffer = ""
                             
@@ -110,7 +110,7 @@ class BrainbaseRunner:
         # Loop to get user input and then send it via the WebSocket.
         while True:
             # Use run_in_executor to avoid blocking the event loop.
-            user_input = await loop.run_in_executor(None, input, "You: ")
+            user_input = await loop.run_in_executor(None, input, "You: \n")
             if user_input.lower() in ["exit", "quit"]:
                 print("Exiting chat...")
                 await ws.close()
