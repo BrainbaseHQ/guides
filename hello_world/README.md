@@ -14,7 +14,7 @@ This guide will walk you through setting up and using the provided files to crea
 
     Ensure you have the following key files in your project:
 
-    - hello_world/brainbase_runner.py
+    - hello_world/brainbase_chat.py
     - hello_world/demo.py
     - hello_world/setup.py
     - hello_world/.env.example
