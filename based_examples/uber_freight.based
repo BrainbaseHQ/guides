@@ -1,0 +1,63 @@
+state = {}
+meta_prompt = "You're an Uber Freight support assistant helping shippers with their logistics needs."
+
+# Introduce the support agent
+res = say("Hello, I'm your Uber Freight Support Assistant. How can I help you today?")
+
+loop:
+    # Get initial query from shipper
+    response = talk(
+        f"{meta_prompt} Ask how you can help with shipment tracking, pricing, account issues, or connecting with a representative.",
+        False
+    )
+until "User has explained their issue":
+    # Extract the issue type
+    issue = response.ask(
+        question="Determine the primary issue category the shipper is experiencing.",
+        example={"category": "tracking", "shipment_id": "", "urgency": "medium"}
+    )
+    
+    # Handle different support scenarios
+    if issue["category"] == "tracking":
+        loop:
+            tracking_response = talk("I can help track your shipment. Could you provide the shipment ID?", True)
+        until "User provides shipment ID or wants to speak to a representative":
+            shipment_info = tracking_response.ask(
+                question="Extract the shipment ID or note if user wants to speak to a representative.",
+                example={"shipment_id": "SF12345678", "speak_to_rep": false}
+            )
+            if shipment_info["speak_to_rep"]:
+                say("I'll connect you with our shipment tracking team.")
+                transfer_call("+1-888-FREIGHT-TRACK")
+                break
+            elif shipment_info["shipment_id"]:
+                say(f"Thank you. Your shipment {shipment_info['shipment_id']} is currently in transit and will arrive on schedule.")
+                break
+    
+    elif issue["category"] == "pricing":
+        say("For detailed pricing inquiries, I'll connect you with our pricing specialists.")
+        transfer_call("+1-888-FREIGHT-PRICE")
+    
+    elif issue["category"] == "account":
+        loop:
+            account_response = talk("I can help with basic account questions. What specific issue are you having?", True)
+        until "User explains account issue or wants to speak to a representative":
+            account_issue = account_response.ask(
+                question="Determine if this is a login issue, billing issue, or if user wants to speak to a representative.",
+                example={"issue_type": "login", "speak_to_rep": false}
+            )
+            if account_issue["speak_to_rep"]:
+                say("I'll connect you with our account specialists who can better assist you.")
+                transfer_call("+1-888-FREIGHT-ACCT")
+                break
+            elif account_issue["issue_type"] == "login":
+                say("For login issues, please try resetting your password on our website or mobile app.")
+                break
+            elif account_issue["issue_type"] == "billing":
+                say("I'll transfer you to our billing department.")
+                transfer_call("+1-888-FREIGHT-BILL")
+                break
+    
+    else:
+        say("I'll connect you with a customer support specialist who can better assist you.")
+        transfer_call("+1-888-FREIGHT-HELP")
