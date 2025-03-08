@@ -1,0 +1,22 @@
+state = {}
+say("Thank you for calling TechFlow.")
+loop:
+    response = talk("Ask the customer about the problem they are experiencing.", True, {"issue": "Connection problem"})
+until "Customer specifies a valid problem":
+    issue = response.ask(question="Extract the customer's issue.", example={"issue": "Connection problem"})
+    if issue:
+        state["issue"] = issue
+    else:
+        print("The customer's problem could not be understood.")
+loop:
+    response = talk("Thank the customer for sharing their problem. To assist better, ask for the customer's name.", True, {"name": "Abdullah"})
+until "Customer provides a valid name":
+    customer = response.ask(question="Extract the customer's name.", example={"name": "Abdullah"})
+    if customer:
+        state["customer"] = customer
+    else:
+        print("The customer's name could not be understood.")
+loop:
+    response = talk(f"Assist the customer with their {state['issue']} problem. Provide the solution steps one by one and ensure the customer follows each step.", True)
+until "Customer has no further questions":
+    say("If the issue persists, please contact us again. Have a great day!")
